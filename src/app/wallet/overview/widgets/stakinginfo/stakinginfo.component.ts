@@ -16,6 +16,7 @@ export class StakinginfoComponent implements OnDestroy {
   /*  General   */
   private log: any = Log.create('stakinginfo.component' + Math.floor((Math.random() * 1000) + 1));
   private destroyed: boolean = false;
+  private rpcCall: string = 'getstakinginfo';
 
 
   /*  UI   */
@@ -35,7 +36,16 @@ export class StakinginfoComponent implements OnDestroy {
     ) {
 
     this.log.d(`constructor, started`);
-    this.rpcState.observe('getstakinginfo', 'percentyearreward')
+    this.rpcState.observe('getcoldstakinginfo', 'enabled')
+      .pipe(takeWhile(() => !this.destroyed))
+      .subscribe(
+        success => {
+          this.log.d(`switching to other staking`);
+          this.rpcCall = success ? 'getcoldstakinginfo' : 'getstakinginfo';
+        },
+        error => this.log.er('Constructor, coldstakinginfo enabled error:' + error)
+      );
+    this.rpcState.observe(this.rpcCall, 'percentyearreward')
     .pipe(takeWhile(() => !this.destroyed))
     .subscribe(
       success => {
@@ -45,7 +55,7 @@ export class StakinginfoComponent implements OnDestroy {
       },
       error => this.log.er('Constructor, percentyearreward error:' + error));
 
-    this.rpcState.observe('getstakinginfo', 'weight')
+    this.rpcState.observe(this.rpcCall, 'weight')
     .pipe(takeWhile(() => !this.destroyed))
     .subscribe(
       success => {
@@ -56,7 +66,7 @@ export class StakinginfoComponent implements OnDestroy {
       error => this.log.er('Constructor, weight error:' + error),
       () => this.log.d('state observe weight completed!'));
 
-    this.rpcState.observe('getstakinginfo', 'netstakeweight')
+    this.rpcState.observe(this.rpcCall, 'netstakeweight')
     .pipe(takeWhile(() => !this.destroyed))
     .subscribe(
       success => {
@@ -65,7 +75,7 @@ export class StakinginfoComponent implements OnDestroy {
       },
       error => this.log.er('Constructor, netstakeweight error:' + error));
 
-    this.rpcState.observe('getstakinginfo', 'moneysupply')
+    this.rpcState.observe(this.rpcCall, 'moneysupply')
     .pipe(takeWhile(() => !this.destroyed))
     .subscribe(
       success => {
@@ -75,7 +85,7 @@ export class StakinginfoComponent implements OnDestroy {
       },
       error => this.log.er('Constructor, moneysupply error:' + error));
 
-    this.rpcState.observe('getstakinginfo', 'expectedtime')
+    this.rpcState.observe(this.rpcCall, 'expectedtime')
     .pipe(takeWhile(() => !this.destroyed))
     .subscribe(
       success => {
